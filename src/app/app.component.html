@@ -1,0 +1,21 @@
+<main>
+  <div class="category-selector">
+    <select (change)="onCategoryChange()" [(ngModel)]="selectedCategory">
+      <option *ngFor="let category of categories" [value]="category.key">
+        {{ category.name }}
+      </option>
+    </select>
+  </div>
+
+  <div class="chart-col">
+    <ul>
+      <li *ngFor="let car of filteredData; let i = index" class="car-row">
+        <div class="car-details">
+          <span class="chart-container" id="chart-{{ i }}"></span>
+          <span class="car-brand">{{ car.brand }}</span>
+          <span class="car-description">{{ car.description }}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</main>
