@@ -8,47 +8,45 @@ import { multiYearData } from './data';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements AfterViewChecked {
-  data = multiYearData; // Original data containing all categories
-  selectedCategory = 'germanCars'; // Default selected category
+  data = multiYearData;
+  selectedCategory = 'germanCars';
   categories = [
     { name: 'German Cars', key: 'germanCars' },
     { name: 'Japanese Cars', key: 'japaneseCars' },
     { name: 'American Cars', key: 'americanCars' },
   ];
-  filteredData = this.data[this.selectedCategory]; // Filtered data based on selected category
-  chartRendered = false; // Flag to track if the charts are already rendered
+  filteredData = this.data[this.selectedCategory];
+  chartRendered = false;
+  showModal = false;
+  modalCar = null; // Store the selected car to display in the modal
 
   constructor(private cdr: ChangeDetectorRef) {}
 
-  // Lifecycle hook to render charts when the view is checked
   ngAfterViewChecked() {
     if (!this.chartRendered) {
       this.renderCharts();
-      this.chartRendered = true; // Mark charts as rendered to prevent re-rendering
+      this.chartRendered = true;
     }
   }
 
-  // Function to handle category change
   onCategoryChange() {
-    this.chartRendered = false; // Reset flag to re-render charts
-    this.clearCharts(); // Clear previous charts
-    this.filteredData = this.data[this.selectedCategory]; // Update filtered data based on selected category
+    this.chartRendered = false;
+    this.clearCharts();
+    this.filteredData = this.data[this.selectedCategory];
     setTimeout(() => {
       this.renderCharts();
       this.chartRendered = true;
-      this.cdr.detectChanges(); // Ensure Angular detects changes
+      this.cdr.detectChanges();
     }, 0);
   }
 
-  // Function to render charts for the current filtered data
   renderCharts() {
     this.filteredData.forEach((car, index) => {
-      this.createLineChart(`#chart-${index}`, car.series); // Draw chart for each car
+      this.createLineChart(`#chart-${index}`, car.series, car); // Pass the car data for modal handling
     });
   }
 
-  // Function to create and render the line chart using D3.js
-  createLineChart(chartContainer: string, seriesData: any[]) {
+  createLineChart(chartContainer: string, seriesData: any[], car: any) {
     const margin = { top: 10, right: 20, bottom: 30, left: 60 };
     const width = 180 - margin.left - margin.right;
     const height = 75 - margin.top - margin.bottom;
@@ -58,20 +56,15 @@ export class AppComponent implements AfterViewChecked {
       .append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
+      .on('click', () => this.openModal(car)) // Open modal on click
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     const xExtent = d3.extent(seriesData, (d: any) => d.year);
-    const x = d3
-      .scaleLinear()
-      .domain([xExtent[0], xExtent[1]])
-      .range([0, width]);
+    const x = d3.scaleLinear().domain([xExtent[0], xExtent[1]]).range([0, width]);
 
     const yExtent = d3.extent(seriesData, (d: any) => d.value);
-    const y = d3
-      .scaleLinear()
-      .domain([yExtent[0], yExtent[1]])
-      .range([height, 0]);
+    const y = d3.scaleLinear().domain([yExtent[0], yExtent[1]]).range([height, 0]);
 
     const line = d3
       .line()
@@ -96,8 +89,67 @@ export class AppComponent implements AfterViewChecked {
       .attr('stroke-dashoffset', 0);
   }
 
-  // Clear charts before re-rendering (for switching categories)
+  // Clear charts before re-rendering
   clearCharts() {
     d3.selectAll('.chart-container svg').remove();
+  }
+
+  // Function to open modal and render the larger chart
+  openModal(car: any) {
+    this.showModal = true;
+    this.modalCar = car;
+
+    setTimeout(() => {
+      this.createModalChart(car.series); // Render the chart in the modal
+    }, 0);
+  }
+
+  // Function to render the chart in the modal
+  createModalChart(seriesData: any[]) {
+    this.clearModalChart();
+
+    const margin = { top: 10, right: 20, bottom: 50, left: 60 };
+    const width = 600 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+
+    const svg = d3
+      .select('#modal-chart')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    const xExtent = d3.extent(seriesData, (d: any) => d.year);
+    const x = d3.scaleLinear().domain([xExtent[0], xExtent[1]]).range([0, width]);
+    svg.append('g').attr('transform', `translate(0, ${height})`).call(d3.axisBottom(x).tickFormat(d3.format('d')));
+
+    const yExtent = d3.extent(seriesData, (d: any) => d.value);
+    const y = d3.scaleLinear().domain([yExtent[0], yExtent[1]]).range([height, 0]);
+    svg.append('g').call(d3.axisLeft(y));
+
+    const line = d3
+      .line()
+      .x((d: any) => x(d.year))
+      .y((d: any) => y(d.value));
+
+    svg
+      .append('path')
+      .datum(seriesData)
+      .attr('fill', 'none')
+      .attr('stroke', 'orange')
+      .attr('stroke-width', 4)
+      .attr('d', line);
+  }
+
+  // Close modal
+  closeModal() {
+    this.showModal = false;
+    this.clearModalChart();
+  }
+
+  // Clear the modal chart before re-rendering
+  clearModalChart() {
+    d3.selectAll('#modal-chart svg').remove();
   }
 }

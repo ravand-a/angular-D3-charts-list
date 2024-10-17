@@ -1,11 +1,75 @@
+/* Hamburger menu styles */
+.hamburger-menu {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  z-index: 20; /* Ensure the hamburger is on top */
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger-menu span {
+  display: block;
+  width: 100%;
+  height: 4px;
+  background-color: white;
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.hamburger-menu:hover span {
+  background-color: #f1c40f; /* Change color on hover */
+}
+
+/* Fullscreen background image styling */
+.full-screen-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1; /* Send it behind the content */
+  overflow: hidden;
+}
+
+.full-screen-background img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* Ensures the image covers the background properly */
+  transform: translate(-50%, -50%);
+}
+
 select {
-  margin: 50px 0 0 55px;
+  margin: 40px 0 0 45px;
   min-width: 200px;
 
 }
+
+/* Main content that sits on top of the background */
+.main-content {
+  position: relative;
+  z-index: 10; /* Ensures the content is on top of the background */
+  padding: 20px; /* Add some padding to avoid edges */
+}
+
+.category-selector {
+  margin-bottom: 20px;
+}
+
+.chart-col {
+  margin-top: 30px;
+}
+
 ul {
   list-style-type: none;
-  margin-top: 4rem;
+  margin: 0;
   padding: 0;
 }
 
@@ -13,32 +77,33 @@ li.car-row {
   display: flex;
   align-items: center; /* Align items in the center vertically */
   justify-content: flex-start; /* Align items to the left */
-  margin-bottom: 20px; /* Add some space between rows */
+  margin-bottom: 20px; /* Space between rows */
 }
 
 .car-details {
   display: flex;
-  // align-items: center;
-  margin-left: 20px; /* Space between chart and car info */
+  flex-direction: row;
+  margin-left: 10px;
   color: #fff;
 }
 
 .car-brand {
-  font-weight: 500;
-  margin-left: 35px;
+  font-weight: 600;
+  margin-left: 20px;
   min-width: 100px;
   margin-top: 15px;
 }
 
 .car-description {
-  margin-left: 20px;
+  margin-left: 10px;
   font-size: 0.9rem;
   margin-top: 15px;
 }
 
-.chart-container {
- 
+.chart-container svg {
+  /* Ensures the chart is properly positioned */
 }
+
 
 // modal box css
 // .modal {
