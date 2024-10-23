@@ -1,6 +1,6 @@
 import { Component, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import * as d3 from 'd3';
-import { multiYearData } from './data'; 
+import { multiYearData } from './data';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +18,8 @@ export class AppComponent implements AfterViewChecked {
   filteredData = this.data[this.selectedCategory];
   chartRendered = false;
   showModal = false;
-  modalCar = null; // Store the selected car to display in the modal
+  modalCar = null;
+  menuOpen = false; // Property to track the menu state
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -42,7 +43,7 @@ export class AppComponent implements AfterViewChecked {
 
   renderCharts() {
     this.filteredData.forEach((car, index) => {
-      this.createLineChart(`#chart-${index}`, car.series, car); // Pass the car data for modal handling
+      this.createLineChart(`#chart-${index}`, car.series, car);
     });
   }
 
@@ -56,7 +57,7 @@ export class AppComponent implements AfterViewChecked {
       .append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
-      .on('click', () => this.openModal(car)) // Open modal on click
+      .on('click', () => this.openModal(car))
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
@@ -89,22 +90,24 @@ export class AppComponent implements AfterViewChecked {
       .attr('stroke-dashoffset', 0);
   }
 
-  // Clear charts before re-rendering
   clearCharts() {
     d3.selectAll('.chart-container svg').remove();
   }
 
-  // Function to open modal and render the larger chart
+  // Function to toggle the menu
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
   openModal(car: any) {
     this.showModal = true;
     this.modalCar = car;
 
     setTimeout(() => {
-      this.createModalChart(car.series); // Render the chart in the modal
+      this.createModalChart(car.series);
     }, 0);
   }
 
-  // Function to render the chart in the modal
   createModalChart(seriesData: any[]) {
     this.clearModalChart();
 
@@ -142,13 +145,11 @@ export class AppComponent implements AfterViewChecked {
       .attr('d', line);
   }
 
-  // Close modal
   closeModal() {
     this.showModal = false;
     this.clearModalChart();
   }
 
-  // Clear the modal chart before re-rendering
   clearModalChart() {
     d3.selectAll('#modal-chart svg').remove();
   }
